@@ -4,7 +4,7 @@ import numpy as np
 import manim as man
 
 from tex.latex_templates import latex_template
-from mobjects.array_image import ArrayImage
+from mobjects import ArrayImage, DilationOperationMob
 
 
 TemplateTex = partial(man.MathTex, tex_template=latex_template)
@@ -55,6 +55,8 @@ class BiseEqDerivationAnimation(man.Scene):
         ex1_mob2 = ArrayImage(ex1, show_value=True).move_to(man.ORIGIN - 3 * man.LEFT)
         selem_mob = ArrayImage(selem, mask=selem).next_to(ex1_mob2, man.RIGHT)
 
-        self.play(man.Create(ex1_mob1))
-        self.play(man.Create(W_mob.next_to(ex1_mob1, man.RIGHT)))
+        dil_mob = DilationOperationMob(ex1_mob2, selem_mob)
+
+        self.play(man.Create(dil_mob))
+        # self.play(man.Create(W_mob.next_to(ex1_mob1, man.RIGHT)))
         self.wait(3)
