@@ -31,7 +31,7 @@ class Pixel(man.Rectangle):
         self.show_value_fn = show_value_fn
 
         if show_value:
-            self.value_mobject = man.Text(self.show_value_fn(self.value)).move_to(self.get_center())
+            self.value_mobject = man.Tex(self.show_value_fn(self.value)).move_to(self.get_center())
 
             if (self.value_mobject.get_left() < .9 * self.get_left()).any():
                 self.value_mobject.stretch_to_fit_width(.9*self.width)
@@ -100,15 +100,21 @@ class ArrayImage(man.VGroup):
                     self.build_pixel(i, j)
                 # self.build_pixel(i, j)
 
+    @property
+    def dtype(self):
+        return self.array.dtype
+
     def build_pixel(self, i, j):
         barycentre = 0
         if self.center_image:
             barycentre = np.array([(self.shape[1] - 1) / 2, - (self.shape[0] - 1 )/ 2, 0])
         pos = j * self.horizontal_stretch * man.RIGHT + i * self.vertical_stretch * man.DOWN - barycentre
 
-        vmin, vmax = self.vmin, self.vmax
-
-        color = get_color_from_rgb(self.cmap((self.array[i, j] - vmin) / (vmax - vmin)))
+        if self.dtype == int or self.dtype == float:
+            vmin, vmax = self.vmin, self.vmax
+            color = get_color_from_rgb(self.cmap((self.array[i, j] - vmin) / (vmax - vmin)))
+        else:
+            color = man.WHITE
 
         pixel = Pixel(
             value=self.array[i, j],
