@@ -19,10 +19,12 @@ class Pixel(man.Rectangle):
             show_value: bool = True,
             draw_frontier: bool = True,
             height: float = 1,
-            width: float = 1,
+            width: float = None,
             show_value_fn: Callable = default_show_value,
             *args, **kwargs
             ):
+        if width is None:
+            width = height
         super().__init__(color=color, fill_color=color, height=height, width=width, fill_opacity=.5, *args, **kwargs)
         self.value = value
 
@@ -79,7 +81,12 @@ class ArrayImage(man.VGroup):
         else:
             self.cmap = cmap
 
-        self.build_all_pixels()
+
+        if self.center_image:
+            center = 0
+        else:
+            center = self.get_center()
+        self.build_all_pixels(center)
 
     @property
     def vmin(self):
@@ -93,22 +100,41 @@ class ArrayImage(man.VGroup):
     def shape(self):
         return self.array.shape + (1,)
 
-    def build_all_pixels(self):
+    def build_all_pixels(self, center):
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):
                 if self.mask[i, j]:
-                    self.build_pixel(i, j)
+                    self.build_pixel(i, j, center)
                 # self.build_pixel(i, j)
+
+    def reset_all_pixels(self):
+        center = self.get_center()
+        for mob in self.submobjects.copy():
+            self.remove(mob)
+        self.build_all_pixels(center=center)
+
+    def update_array(self, new_array: np.ndarray):
+        self.array = new_array
+        self.reset_all_pixels()
+        return self
 
     @property
     def dtype(self):
         return self.array.dtype
 
-    def build_pixel(self, i, j):
-        barycentre = 0
-        if self.center_image:
-            barycentre = np.array([(self.shape[1] - 1) / 2, - (self.shape[0] - 1 )/ 2, 0])
-        pos = j * self.horizontal_stretch * man.RIGHT + i * self.vertical_stretch * man.DOWN - barycentre
+    @property
+    def hscale(self):
+        return self.horizontal_stretch
+
+    @property
+    def vscale(self):
+        return self.vertical_stretch
+
+    def build_pixel(self, i, j, center):
+        pos = (
+            j * self.hscale * man.RIGHT + i * self.vscale * man.DOWN +
+            center - np.array([self.hscale * (self.shape[1] - 1) / 2, - self.vscale * (self.shape[0] - 1)/ 2, 0])
+        )
 
         if self.dtype == int or self.dtype == float:
             vmin, vmax = self.vmin, self.vmax

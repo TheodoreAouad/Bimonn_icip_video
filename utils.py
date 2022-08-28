@@ -37,3 +37,17 @@ def sort_by_polar(Xs, Ys):
 
 def play_all_submob(scene, mob, fn=man.Create, run_time=1):
     return scene.play(*[fn(submob) for submob in mob.submobjects], run_time=run_time)
+
+
+def play_horizontal_sequence(scene, seq, origin=man.ORIGIN, aligned_edge=man.ORIGIN, direction=man.RIGHT, **kwargs):
+    scene.play(man.Create(seq[0].move_to(origin, aligned_edge=aligned_edge)), **kwargs)
+    for i in range(1, len(seq)):
+        scene.play(man.Create(seq[i].next_to(seq[i-1], direction)), **kwargs)
+    return scene
+
+
+def play_transforming_tex(scene, texs, origin=man.ORIGIN, **kwargs):
+    scene.play(man.Create(texs[0].move_to(origin)), **kwargs)
+    for i in range(1, len(texs)):
+        scene.play(man.TransformMatchingTex(texs[i-1], texs[i].move_to(origin)), **kwargs)
+    return scene
