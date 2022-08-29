@@ -57,6 +57,8 @@ class ArrayImage(man.VGroup):
             vertical_stretch: float = .5,
             show_value_fn: Callable = default_show_value,
             center_image: bool = False,
+            vmin_cmap: float = None,
+            vmax_cmap: float = None,
             *args, **kwargs
             ):
         super().__init__(*args, **kwargs)
@@ -74,6 +76,9 @@ class ArrayImage(man.VGroup):
         self.vertical_stretch = vertical_stretch
         self.show_value_fn = show_value_fn
         self.center_image = center_image
+        self._vmin_cmap = vmin_cmap
+        self._vmax_cmap = vmax_cmap
+        self.all_pixels = [[None for _ in range(self.shape[1])] for _ in range(self.shape[0])]
 
         self.cmap_str = cmap
         if isinstance(cmap, str):
@@ -97,6 +102,18 @@ class ArrayImage(man.VGroup):
         return self.array.max()
 
     @property
+    def vmin_cmap(self):
+        if self._vmin_cmap is None:
+            return self.array.min()
+        return self._vmin_cmap
+
+    @property
+    def vmax_cmap(self):
+        if self._vmax_cmap is None:
+            return self.array.max()
+        return self._vmax_cmap
+
+    @property
     def shape(self):
         return self.array.shape + (1,)
 
@@ -118,6 +135,9 @@ class ArrayImage(man.VGroup):
         self.reset_all_pixels()
         return self
 
+    def get_pixel(self, i, j):
+        return self.all_pixels[i][j]
+
     @property
     def dtype(self):
         return self.array.dtype
@@ -137,7 +157,7 @@ class ArrayImage(man.VGroup):
         )
 
         if self.dtype == int or self.dtype == float:
-            vmin, vmax = self.vmin, self.vmax
+            vmin, vmax = self.vmin_cmap, self.vmax_cmap
             color = get_color_from_rgb(self.cmap((self.array[i, j] - vmin) / (vmax - vmin)))
         else:
             color = man.WHITE
@@ -151,3 +171,5 @@ class ArrayImage(man.VGroup):
             color=color
         ).move_to(pos)
         self.add(pixel)
+        self.all_pixels[i][j] = pixel
+        return pixel

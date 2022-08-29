@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 import manim as man
 
@@ -13,6 +13,7 @@ class OperationMob(man.VGroup):
             mob1: man.Mobject,
             mob2: man.Mobject,
             mob3: Optional[man.Mobject] = None,
+            subscripts: Optional[List[man.Mobject]] = [None, None, None],
             horizontal_scale: float = 1,
             show_braces: bool = True,
             *args, **kwargs
@@ -22,6 +23,7 @@ class OperationMob(man.VGroup):
         self.mob1 = mob1
         self.mob2 = mob2
         self.mob3 = mob3
+        self.subscripts = subscripts
         self.horizontal_scale = horizontal_scale
         self.show_braces = show_braces
 
@@ -41,6 +43,16 @@ class OperationMob(man.VGroup):
             print("mob3:", self.mob3)
             self.add(man.MathTex(r"=").next_to(self, self.horizontal_scale * man.RIGHT))
             self.add(self.mob3.next_to(self, self.horizontal_scale * man.RIGHT))
+
+        if subscripts[0] is not None:
+            self.add(subscripts[0].next_to(self.mob1, man.DOWN))
+
+        if subscripts[1] is not None:
+            self.add(subscripts[1].next_to(self.mob2, man.DOWN))
+
+        if subscripts[2] is not None and self.mob3 is not None:
+            self.add(subscripts[2].next_to(self.mob3, man.DOWN))
+
 
 
 class DilationOperationMob(OperationMob):
