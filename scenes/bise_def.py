@@ -1,5 +1,4 @@
 from functools import partial
-from pipes import Template
 
 import manim as man
 
