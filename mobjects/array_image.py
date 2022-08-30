@@ -156,7 +156,7 @@ class ArrayImage(man.VGroup):
             center - np.array([self.hscale * (self.shape[1] - 1) / 2, - self.vscale * (self.shape[0] - 1)/ 2, 0])
         )
 
-        if self.dtype == int or self.dtype == float:
+        if self.dtype in [int, float]:
             vmin, vmax = self.vmin_cmap, self.vmax_cmap
             color = get_color_from_rgb(self.cmap((self.array[i, j] - vmin) / (vmax - vmin)))
         else:

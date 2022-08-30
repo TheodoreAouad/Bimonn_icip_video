@@ -39,8 +39,6 @@ class OperationMob(man.VGroup):
             self.add(self.brace2)
 
         if self.mob3 is not None:
-            print(self.mob3 is None)
-            print("mob3:", self.mob3)
             self.add(man.MathTex(r"=").next_to(self, self.horizontal_scale * man.RIGHT))
             self.add(self.mob3.next_to(self, self.horizontal_scale * man.RIGHT))
 

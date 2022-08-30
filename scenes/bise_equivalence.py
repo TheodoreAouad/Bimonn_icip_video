@@ -5,14 +5,109 @@ from functools import partial
 import numpy as np
 import manim as man
 from skimage.morphology import dilation
+from scipy.signal import convolve2d
 
 from mobjects.array_image import Pixel
 from tex.latex_templates import latex_template
 from mobjects import ArrayImage, DilationOperationMob, ConvolutionOperationMob
 from utils import play_horizontal_sequence, play_transforming_tex, euclidean_division, animation_update_array_mob
+from example_array import example1
 
 
 TemplateTex = partial(man.MathTex, tex_template=latex_template)
+
+
+class OnePixelEnoughAnimation(man.Scene):
+    def construct(self):
+        array = example1
+
+        selem = np.array([
+            [0, 1, 0],
+            [1, 1, 1],
+            [0, 1, 0]
+        ])
+        Xs, Ys = np.where(selem.astype(bool))
+        Xs = Xs - selem.shape[0] // 2
+        Ys = Ys - selem.shape[1] // 2
+
+        coords = (2, 1)
+
+        dil_array = dilation(array, selem)
+        conv_array = convolve2d(array, selem, mode='same')
+        unknown = np.array([["?" for _ in range(array.shape[1])] for _ in range(array.shape[0])])
+
+        texs = [
+            man.MathTex("X"),
+            man.MathTex("S"),
+            man.MathTex(r"X", r"\circledast", r"S"),
+            man.MathTex("[2, 1]", "=", tex_to_color_map={"[2, 1]": man.RED}),
+            man.MathTex("="),
+            # man.MathTex("(", r"X", r"\circledast", r"S", ")", "(2, 1)", "=", tex_to_color_map={"(2, 1)": man.RED}),
+        ]
+
+        array_mob = ArrayImage(array, show_value=True).move_to(man.ORIGIN + 2*man.LEFT)
+        conv_mob = ArrayImage(conv_array, show_value=True)
+        selem_mob = ArrayImage(selem, show_value=True, cmap='Blues')
+        unknown_mob = ArrayImage(unknown).next_to(array_mob, 4*man.RIGHT)
+
+        conv_op_mob = ConvolutionOperationMob(array_mob, selem_mob, unknown_mob, subscripts=(texs[0], texs[1], texs[2]), show_braces=True).move_to(man.ORIGIN + man.DOWN)
+
+        center_pixel = unknown_mob.get_pixel(*coords)
+        conv_pixel = conv_mob.get_pixel(*coords)
+
+        group_pixel = man.VGroup(*[array_mob.get_pixel(*(coords - np.array([i, j]))).copy() for i in range(-1, 2) for j in range(-1, 2)])
+
+
+        cadre_input = Pixel(value=None, show_value=False, color=man.RED, width=array_mob.hscale, height=array_mob.vscale).move_to(array_mob.get_pixel(*coords).get_center())
+        cadre_conv = Pixel(value=None, show_value=False, color=man.RED, width=array_mob.hscale, height=array_mob.vscale).move_to(center_pixel.get_center())
+
+        conv_op_equal = conv_op_mob.submobjects[5]
+        conv_op_circledast = conv_op_mob.submobjects[1]
+        conv_op_brace2 = conv_op_mob.submobjects[4]
+        conv_op_brace1 = conv_op_mob.submobjects[3]
+
+        # self.play(man.FadeIn(array_mob), man.Create(texs[0].next_to(array_mob, man.DOWN)))
+        # self.play(man.FadeIn(selem_mob), man.Create(texs[1].next_to(selem_mob, man.DOWN)))
+        self.play(man.Create(conv_op_mob))
+        self.wait(1.5)
+        self.play(man.Create(cadre_conv), man.Create(cadre_input))
+        self.wait(1.5)
+        self.play(man.FadeOut(unknown_mob, cadre_conv, conv_op_mob.subscripts[-1]), man.FadeIn(center_pixel))
+        texs[3].next_to(conv_op_brace2, man.RIGHT)
+        self.play(man.Create(texs[3]), center_pixel.animate.next_to(texs[3], man.RIGHT), man.FadeOut(conv_op_equal))
+        self.wait(1.5)
+        selem_mob2 = selem_mob.copy()
+        self.play(man.FadeOut(texs[1]), group_pixel.animate.next_to(array_mob, man.UP), selem_mob2.animate.next_to(group_pixel.copy().next_to(array_mob, man.UP), man.RIGHT))
+        self.wait(1.5)
+
+        grp_conv_pixel = man.VGroup(group_pixel, selem_mob2)
+        self.play(man.Transform(grp_conv_pixel, conv_pixel.next_to(texs[3], man.RIGHT)), man.FadeOut(center_pixel))
+
+        self.wait(1.5)
+
+        group_pixel = man.VGroup(*[array_mob.get_pixel(*(coords - np.array([i, j]))).copy() for i in range(-1, 2) for j in range(-1, 2)])
+        sq = man.Square(side_length=selem.shape[0] * selem_mob.horizontal_stretch, color=man.RED).move_to(group_pixel)
+
+        self.play(man.Create(sq), man.FadeOut(cadre_input))
+        self.wait(1)
+
+        # tex_copy = texs[3].copy()
+        # self.remove(texs[3])
+        # self.add(tex_copy)
+        texs[4].next_to(selem_mob, man.RIGHT)
+        self.play(
+            man.FadeOut(array_mob, sq, conv_op_brace1, conv_op_brace2, texs[0]),
+            group_pixel.animate.next_to(conv_op_circledast, man.LEFT),
+            man.TransformMatchingTex(texs[3], texs[4]),
+            grp_conv_pixel.animate.next_to(texs[4], man.RIGHT)
+        )
+
+        selem_mob2 = selem_mob.copy()
+        group_pixel2 = group_pixel.copy()
+
+        self.play(man.FadeOut(man.VGroup(group_pixel2, selem_mob2), target_position=grp_conv_pixel, scale=0))
+
+        self.wait(3)
 
 
 class BiseEqQuestionAnimation(man.Scene):
