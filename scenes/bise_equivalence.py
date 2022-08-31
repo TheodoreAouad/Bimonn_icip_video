@@ -112,22 +112,27 @@ class OnePixelEnoughAnimation(man.Scene):
 
 class BiseEqQuestionAnimation(man.Scene):
     def construct(self):
-        eq_texts = [
-            TemplateTex(r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"1", r"\Big)",),
-            TemplateTex(r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)",),
-            TemplateTex(r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ W \in [0, 1]^{\Omega}"),
+        texs = [
+            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"1", r"\Big)",),
+            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"b", r"\Big)"),
+            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}"),
+            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}"),
+            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}", r"~,~ W \in [0, 1]^{\Omega}"),
+            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}", r"~,~ W \in [0, 1]^{\Omega}"),
         ]
 
         comment_texts = [
-            man.Tex(r"What is the relationship between $W$ and $b$ ?")
+            man.Tex(r"What is the relationship between $W$ and $b$"),
+            man.Tex(r"to ensure this equivalence?")
         ]
 
 
-        self.play(man.Create(eq_texts[0]))
-        self.wait()
-        self.play(man.TransformMatchingTex(eq_texts[0], eq_texts[1]))
-        self.play(man.TransformMatchingTex(eq_texts[1], eq_texts[2]))
-        self.play(man.Create(comment_texts[0].next_to(eq_texts[1], man.DOWN)))
+        self.play(man.FadeIn(texs[0]))
+        self.wait(1)
+        for i in range(1, len(texs)):
+            self.play(man.TransformMatchingTex(texs[i-1], texs[i]))
+        self.play(man.Create(comment_texts[0].next_to(texs[1], man.DOWN)))
+        self.play(man.Create(comment_texts[1].next_to(comment_texts[0], man.DOWN)))
         self.wait(3)
 
 
