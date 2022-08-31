@@ -1,4 +1,4 @@
-from typing import Callable, Tuple, List
+from typing import Callable, Tuple, List, Optional
 
 import numpy as np
 from manim.utils.color import Color
@@ -67,3 +67,22 @@ def animation_update_array_mob(scene: man.Scene, array_mobs: List["ArrayImage"],
     for array_mob, new_array in zip(array_mobs, new_arrays):
         array_mob.update_array(new_array)
     scene.play(*[man.FadeIn(array_mob) for array_mob in array_mobs], run_time=run_time)
+
+
+def reverse_crop(croped_ar: np.ndarray, size: Tuple, crop_xs: Tuple = None, crop_ys: Tuple = None, crop_zs: Optional[Tuple] = None,
+                 fill_value: float = 0) -> np.ndarray:
+    ar = np.zeros(size) + fill_value
+
+    if crop_xs is None:
+        crop_xs = np.array([(size[0] - croped_ar.shape[0]) / 2, -((size[0] - croped_ar.shape[0]) / 2)]).astype(int)
+
+    if crop_ys is None:
+        crop_ys = np.array([(size[1] - croped_ar.shape[1]) / 2, -((size[1] - croped_ar.shape[1]) / 2)]).astype(int)
+
+    if len(size) == 2:
+        ar[crop_xs[0]:crop_xs[1], crop_ys[0]:crop_ys[1]] = croped_ar
+
+    if len(size) == 3:
+        ar[crop_xs[0]:crop_xs[1], crop_ys[0]:crop_ys[1], crop_zs[0]:crop_zs[1]] = croped_ar
+
+    return ar.astype(croped_ar.dtype)

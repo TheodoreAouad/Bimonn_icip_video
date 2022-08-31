@@ -11,7 +11,7 @@ from mobjects.array_image import Pixel
 from tex.latex_templates import latex_template
 from mobjects import ArrayImage, DilationOperationMob, ConvolutionOperationMob
 from utils import play_horizontal_sequence, play_transforming_tex, euclidean_division, animation_update_array_mob
-from example_array import example1
+from example_array import example1, W1
 
 
 TemplateTex = partial(man.MathTex, tex_template=latex_template)
@@ -287,11 +287,7 @@ class BiseConvBoundsAnimation(man.Scene):
             [1, 0, 1],
         ])
 
-        W = np.array([
-            [0.12, 0.8, 0.13],
-            [0.81, 0.83, 0.89],
-            [0.1, 0.86, 0.14],
-        ])
+        W = W1
 
         selem = np.array([
             [0, 1, 0],

@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Tuple
 import numpy as np
 import manim as man
 from manim.utils.color import Color
@@ -21,11 +21,15 @@ class Pixel(man.Rectangle):
             height: float = 1,
             width: float = None,
             show_value_fn: Callable = default_show_value,
+            fill_opacity: float = .5,
             *args, **kwargs
             ):
         if width is None:
             width = height
-        super().__init__(color=color, fill_color=color, height=height, width=width, fill_opacity=.5, *args, **kwargs)
+        if not draw_frontier:
+            kwargs["stroke_width"] = 0
+
+        super().__init__(color=color, fill_color=color, height=height, width=width, fill_opacity=fill_opacity, *args, **kwargs)
         self.value = value
 
         self.show_value = show_value
@@ -55,14 +59,17 @@ class ArrayImage(man.VGroup):
             cmap: str = 'viridis',
             horizontal_stretch: float = .5,
             vertical_stretch: float = .5,
+            shape_target: Tuple[float] = None,
             show_value_fn: Callable = default_show_value,
             center_image: bool = False,
             vmin_cmap: float = None,
             vmax_cmap: float = None,
+            fill_opacity: float = .5,
             *args, **kwargs
             ):
         super().__init__(*args, **kwargs)
         self.array = array
+        self.fill_opacity = fill_opacity
 
         if mask is None:
             self.mask = np.ones(array.shape).astype(bool)
@@ -72,8 +79,15 @@ class ArrayImage(man.VGroup):
         self.show_value = show_value
         self.cmap = None  # TODO: implement cmap
         self.draw_grid = draw_grid
-        self.horizontal_stretch = horizontal_stretch
-        self.vertical_stretch = vertical_stretch
+
+        self.shape_target = shape_target
+        if self.shape_target is not None:
+            self.horizontal_stretch = self.shape_target[0] / self.shape[0]
+            self.vertical_stretch = self.shape_target[1] / self.shape[1]
+        else:
+            self.horizontal_stretch = horizontal_stretch
+            self.vertical_stretch = vertical_stretch
+
         self.show_value_fn = show_value_fn
         self.center_image = center_image
         self._vmin_cmap = vmin_cmap
@@ -92,6 +106,7 @@ class ArrayImage(man.VGroup):
         else:
             center = self.get_center()
         self.build_all_pixels(center)
+
 
     @property
     def vmin(self):
@@ -168,7 +183,9 @@ class ArrayImage(man.VGroup):
             width=self.horizontal_stretch,
             show_value=self.show_value,
             show_value_fn=self.show_value_fn,
-            color=color
+            color=color,
+            draw_frontier=self.draw_grid,
+            fill_opacity=self.fill_opacity,
         ).move_to(pos)
         self.add(pixel)
         self.all_pixels[i][j] = pixel

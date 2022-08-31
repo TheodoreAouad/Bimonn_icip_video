@@ -2,15 +2,12 @@ import numpy as np
 import manim as man
 
 from mobjects import ArrayImage
+from example_array import W1
 
 
 class ThresholdingAnimation(man.Scene):
     def construct(self):
-        W = np.array([
-            [0.12, 0.8, 0.13],
-            [0.81, 0.83, 0.89],
-            [0.1, 0.86, 0.14],
-        ])
+        W = W1
 
         selem = np.array([
             [0, 1, 0],
