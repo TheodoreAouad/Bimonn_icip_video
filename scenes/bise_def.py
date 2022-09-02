@@ -37,16 +37,26 @@ class BiseDefAnimation(man.Scene):
         # self.play(man.FadeIn(dil_mob, ero_mob))
         # self.wait()
         # self.play(man.FadeOut(ero_mob), man.TransformMatchingTex(dil_mob, texs[1]))
-        self.wait()
+        self.wait(7)
         self.play(man.FadeIn(texs[1], texs[9].next_to(texs[1], man.DOWN)))
-        self.wait()
+        self.wait(6)
 
         self.play(man.TransformMatchingTex(texs[1], texs[2]), man.FadeOut(texs[9]))
         self.wait()
 
+        wait_times = {
+            3: 4,
+            4: 4,
+            5: 1,
+            6: 6,
+            7: 3,
+            8: 7,
+        }
+
         do_show = True
 
         for i in range(3, len(texs) - 2):
+            self.wait(wait_times[i])
             self.play(man.TransformMatchingTex(texs[i-1], texs[i]))
             if r"\xi" in texs[i].tex_string and do_show:
                 axes.next_to(texs[i], 2*man.DOWN)
@@ -54,9 +64,9 @@ class BiseDefAnimation(man.Scene):
                 label_graph = axes.get_graph_label(thresh_graph, man.MathTex(r"\xi(u) = \frac{1}{2} \cdot \tanh(u) + \frac{1}{2}", font_size=man.DEFAULT_FONT_SIZE*.7))
                 self.play(man.FadeIn(axes, thresh_graph, label_graph.next_to(thresh_graph, man.RIGHT)))
                 do_show = False
-            self.wait()
 
+        self.wait(2)
         self.play(man.FadeOut(axes, thresh_graph, label_graph))
         self.play(man.Create(texs[10].next_to(texs[8], man.DOWN)))
 
-        self.wait(3)
+        self.wait(16)

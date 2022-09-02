@@ -134,11 +134,12 @@ class BiseEqQuestionAnimation(man.Scene):
         self.play(man.TransformMatchingTex(texs[2], texs[3]))
         self.wait(1)
         self.play(man.TransformMatchingTex(texs[3], texs[4]))
+        self.wait(4)
 
 
         self.play(man.Create(comment_texts[0].next_to(texs[1], man.DOWN)))
         self.play(man.Create(comment_texts[1].next_to(comment_texts[0], man.DOWN)))
-        self.wait(12)
+        self.wait(8)
 
 
 class BiseEq1DerivationAnimation(man.Scene):
@@ -178,7 +179,7 @@ class BiseEq1DerivationAnimation(man.Scene):
             man.Tex(r"~~, we have"),  # 1
             man.MathTex(r">", r"b", r"\Rightarrow", ),  # 2
             man.MathTex(r"w_{1, 2}", r"> b"),  # 3
-            TemplateMathTex("Assumption:", r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r">", r"b", r"\Big)"),  # 4
+            TemplateMathTex("Assumption:", r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r">", r"b", r"\Big)"),  # 4
             man.MathTex(r"\leq", r"b", r"\Rightarrow", ),  # 5
             man.MathTex(r"w_{0, 1}", r"+", r"w_{1, 2}", r"+", r"w_{2, 1}", r"+", r"w_{1, 0}" r"\leq b"),  # 6
             man.MathTex(r"\sum_{i, j \notin S}", r"w_{i,j}", r"\leq b"),  # 7
@@ -196,18 +197,38 @@ class BiseEq1DerivationAnimation(man.Scene):
         conv_mob = ConvolutionOperationMob(grp2, W_mob, show_braces=False, subscripts=[TemplateMathTex(r"\mathbbm{1}_{X}"), man.MathTex("W"), None])
 
         self.play(man.FadeIn(texs[4].move_to(man.ORIGIN + 3 * man.UP)))
-        play_horizontal_sequence(self, [texs[0], dil_mob, texs[1]], origin=man.ORIGIN + 1 * man.UP + 3*man.LEFT)
-        play_horizontal_sequence(self, [conv_mob, texs[2], texs[3]], origin=dil_mob.get_left() + 3*man.DOWN, aligned_edge=man.LEFT)
+        self.wait(8)
+
+        texs[0].move_to(man.ORIGIN + man.UP + 3*man.LEFT)
+        dil_mob.next_to(texs[0], man.RIGHT)
+        texs[1].next_to(dil_mob, man.RIGHT)
+
+        self.play(man.Create(dil_mob))
+        self.wait(2)
+        self.play(man.FadeIn(texs[0], texs[1]))
+        self.wait(1)
+
+        conv_mob.move_to(dil_mob.get_left() + 3*man.DOWN, aligned_edge=man.LEFT)
+        texs[2].next_to(conv_mob, man.RIGHT)
+        texs[3].next_to(texs[2], man.RIGHT)
+
+        self.play(man.Create(conv_mob))
+        self.play(man.FadeIn(texs[2]))
+        self.play(man.FadeIn(texs[3]))
+        self.wait(6)
+
+        # play_horizontal_sequence(self, [texs[0], dil_mob, texs[1]], origin=man.ORIGIN + 1 * man.UP + 3*man.LEFT)
+        # play_horizontal_sequence(self, [conv_mob, texs[2], texs[3]], origin=dil_mob.get_left() + 3*man.DOWN, aligned_edge=man.LEFT)
 
         for (i, j) in [(0, 1), (1, 1), (1, 2), (1, 0)]:
-            self.play(man.FadeOut(grp1), man.FadeOut(grp2))
+            self.play(man.FadeOut(grp1), man.FadeOut(grp2), run_time=.7)
 
             ex1 = np.zeros((3, 3), dtype=int); ex1[i, j] = 1
             ex1_mob1.update_array(ex1)
             ex1_mob2.update_array(ex1)
             new_tex = man.MathTex(r"w_{" + f"{i}, {j}" + r"}", r"> b").move_to(texs[3].get_center())
 
-            self.play(man.FadeIn(grp1), man.FadeIn(grp2), man.TransformMatchingTex(texs[3], new_tex))
+            self.play(man.FadeIn(grp1), man.FadeIn(grp2), man.TransformMatchingTex(texs[3], new_tex), run_time=.7)
             texs[3] = new_tex
 
         self.play(man.FadeOut(texs[0], dil_mob, texs[1], texs[2], conv_mob))
@@ -231,10 +252,13 @@ class BiseEq1DerivationAnimation(man.Scene):
         self.play(man.FadeOut(texs[0], dil_mob, texs[5], conv_mob, texs[1]))
         self.play(man.TransformMatchingTex(texs[6], texs[7].move_to(man.ORIGIN)))
 
+        self.wait(2)
+
         self.play(texs[7].animate.move_to(man.ORIGIN + .5 * man.DOWN), man.FadeIn(texs[8].move_to(man.ORIGIN + .5 * man.UP)))
         grp_dil_ine = man.VGroup(texs[7], texs[8])
         texs[14].move_to(man.ORIGIN + 1.5 * man.UP)
         self.play(man.FadeIn(texs[14]), grp_dil_ine.animate.next_to(texs[14], man.RIGHT), man.TransformMatchingTex(texs[4], texs[10].next_to(texs[14], man.LEFT)))
+        self.wait(2)
         self.play(man.TransformMatchingTex(texs[14], texs[9].move_to(texs[14])))
 
         tex_eq_copy = texs[9].copy().move_to(man.ORIGIN + 1.5*man.DOWN)
@@ -244,59 +268,8 @@ class BiseEq1DerivationAnimation(man.Scene):
         texs[12].move_to(man.ORIGIN + .5*man.DOWN)
         texs[13].move_to(man.ORIGIN + .5*man.UP)
         grp_ero_ine = man.VGroup(texs[12], texs[13])
-        self.play(man.FadeIn(tex_eq_copy, texs[11], grp_ero_ine.next_to(tex_eq_copy, man.RIGHT)))
-
         self.wait(3)
-
-
-class BiseEq2DerivationAnimation(man.Scene):
-    def construct(self):
-        ex1 = np.array([
-            [1, 0, 1],
-            [0, 0, 0],
-            [1, 0, 1]
-        ])
-
-        selem = np.array([
-            [0, 1, 0],
-            [1, 1, 1],
-            [0, 1, 0]
-        ])
-
-        dil_ex1 = dilation(ex1, selem)
-
-        W = np.array([
-            ["$w_{" + f"{i}{j}" + "}$" for i in range(3)] for j in range(3)
-        ])
-
-        ex1_mob1 = ArrayImage(ex1, show_value=True)
-        sq1 = man.Square(side_length=ex1_mob1.horizontal_stretch, color='red').move_to(ex1_mob1.get_center())
-        grp1 = man.VGroup(ex1_mob1, sq1)
-        selem_mob = ArrayImage(selem, mask=selem, cmap='Blues')
-        dil_ex1_mob1 = Pixel(value=dil_ex1[1, 1], color=man.PURPLE, show_value=True, height=ex1_mob1.horizontal_stretch)
-
-        ex1_mob2 = ArrayImage(ex1, show_value=True)
-        sq2 = man.Square(side_length=ex1_mob2.horizontal_stretch, color='red').move_to(ex1_mob2.get_center())
-        grp2 = man.VGroup(ex1_mob2, sq2)
-        W_mob = ArrayImage(W, show_value=True)
-
-        texs = [
-            man.Tex(r"As~~"),
-            man.Tex(r"~~, we have"),
-            man.MathTex(r"\leq", r"b", r"\Rightarrow", ),
-            man.MathTex(r"w_{0, 1}", r"+", r"w_{1, 2}", r"+", r"w_{2, 1}", r"+", r"w_{1, 0}" r"\leq b")
-        ]
-
-        dil_mob = DilationOperationMob(grp1, selem_mob, dil_ex1_mob1, show_braces=False, subscripts=[man.MathTex("X"), man.MathTex("S"), None])
-
-        conv_mob = ConvolutionOperationMob(grp2, W_mob, show_braces=False, subscripts=[man.MathTex("X"), man.MathTex("W"), None])
-
-        play_horizontal_sequence(self, [texs[0], dil_mob, texs[1]], origin=man.ORIGIN + 2 * man.UP + 6*man.LEFT)
-        play_horizontal_sequence(self, [conv_mob, texs[2], texs[3]], origin=dil_mob.get_left() + 3*man.DOWN, aligned_edge=man.LEFT)
-
-
-        self.play(man.FadeOut(texs[0], dil_mob, texs[1], texs[2], conv_mob))
-        self.play(man.TransformMatchingTex(texs[3], man.MathTex(r"\sum_{i, j \in S}", r"w_{i,j}", r"\leq b").move_to(man.ORIGIN)))
+        self.play(man.FadeIn(tex_eq_copy, texs[11], grp_ero_ine.next_to(tex_eq_copy, man.RIGHT)))
 
         self.wait(3)
 
@@ -408,6 +381,7 @@ class BiseConvBoundsAnimation(man.Scene):
             self.play(man.FadeOut(dil_array_mob.copy(), target_position=point.get_center()), point.animate.set_color(color), run_time=run_time)
             return point
 
+
         # Compute first conv point for lower bound
         val = (ex1 * W).sum()
         color = man.YELLOW if val > b else man.PURPLE
@@ -420,6 +394,7 @@ class BiseConvBoundsAnimation(man.Scene):
         point_ub = play_conv_and_axis(conv_mob, array_mob_conv, array_mob_dil, dil_array_mob, ub, run_time=.5)
         self.play(man.Create(man.MathTex("U", height=.3, color=man.YELLOW).next_to(point_ub, man.DOWN)), run_time=.5)
 
+        self.wait(6)
         # Convolution max and min
         point_min = play_conv_and_axis(conv_mob, array_mob_conv, array_mob_dil, dil_array_mob, np.zeros(selem.shape, dtype=int), run_time=.5)
         self.play(man.Create(man.Tex("min").next_to(point_min, man.DOWN)))
@@ -452,14 +427,16 @@ class BiseConvBoundsAnimation(man.Scene):
         tex_dil_0 = man.MathTex(r"\notin X \oplus S", color=man.PURPLE).next_to(brace_0, man.UP, aligned_edge=man.RIGHT)
 
         self.play(man.FadeIn(brace_1, tex_dil_1))
+        self.wait(10)
         self.play(man.FadeIn(brace_0, tex_dil_0))
 
+        self.wait(4)
         red_line = man.Line(start=point_lb, end=point_ub, color=man.RED)
         self.play(man.Create(red_line, run_time=1))
 
         self.play(man.Transform(red_line.copy(), TemplateMathTex(r"\forall X ~,~ \mathbbm{1}_{X} \circledast W \notin ]L, U[", color=man.RED)))
 
-        self.wait(3)
+        self.wait(10)
 
 
 class BiseEq3DerivationAnimation(man.Scene):
