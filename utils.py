@@ -1,8 +1,15 @@
+from functools import partial
 from typing import Callable, Tuple, List, Optional
 
 import numpy as np
 from manim.utils.color import Color
 import manim as man
+
+from tex.latex_templates import latex_template
+
+
+TemplateMathTex = partial(man.MathTex, tex_template=latex_template)
+TemplateTex = partial(man.Tex, tex_template=latex_template)
 
 
 def polar2z(r, theta):
@@ -57,7 +64,7 @@ def euclidean_division(x: int, y: int) -> Tuple[int]:
     return x // y, x % y
 
 
-def animation_update_array_mob(scene: man.Scene, array_mobs: List["ArrayImage"], new_arrays: List[np.ndarray], run_time: float = 1):
+def animation_update_array_mob(scene: man.Scene, array_mobs: List["ArrayImage"], new_arrays: List[np.ndarray], run_time: float = 1, other_anims: List = []):
     if not isinstance(array_mobs, list):
         array_mobs = [array_mobs]
     if not isinstance(new_arrays, list):
@@ -66,7 +73,7 @@ def animation_update_array_mob(scene: man.Scene, array_mobs: List["ArrayImage"],
     scene.play(*[man.FadeOut(array_mob) for array_mob in array_mobs], run_time=run_time)
     for array_mob, new_array in zip(array_mobs, new_arrays):
         array_mob.update_array(new_array)
-    scene.play(*[man.FadeIn(array_mob) for array_mob in array_mobs], run_time=run_time)
+    scene.play(*[man.FadeIn(array_mob) for array_mob in array_mobs], *other_anims, run_time=run_time)
 
 
 def reverse_crop(croped_ar: np.ndarray, size: Tuple, crop_xs: Tuple = None, crop_ys: Tuple = None, crop_zs: Optional[Tuple] = None,

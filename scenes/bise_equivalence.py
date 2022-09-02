@@ -1,5 +1,4 @@
 import random
-from functools import partial
 
 
 import numpy as np
@@ -8,13 +7,12 @@ from skimage.morphology import dilation
 from scipy.signal import convolve2d
 
 from mobjects.array_image import Pixel
-from tex.latex_templates import latex_template
 from mobjects import ArrayImage, DilationOperationMob, ConvolutionOperationMob
-from utils import play_horizontal_sequence, play_transforming_tex, euclidean_division, animation_update_array_mob
+from utils import play_horizontal_sequence, play_transforming_tex, euclidean_division, animation_update_array_mob, TemplateMathTex
 from example_array import example1, W1
+from run_times import tanh_run_times
 
 
-TemplateTex = partial(man.MathTex, tex_template=latex_template)
 
 
 class OnePixelEnoughAnimation(man.Scene):
@@ -113,12 +111,11 @@ class OnePixelEnoughAnimation(man.Scene):
 class BiseEqQuestionAnimation(man.Scene):
     def construct(self):
         texs = [
-            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"1", r"\Big)",),
-            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"b", r"\Big)"),
-            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}"),
-            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}"),
-            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}", r"~,~ W \in [0, 1]^{\Omega}"),
-            TemplateTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}", r"~,~ W \in [0, 1]^{\Omega}"),
+            TemplateMathTex(r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"1", r"\Big)",),
+            TemplateMathTex(r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"b", r"\Big)"),
+            TemplateMathTex(r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}"),
+            TemplateMathTex(r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}"),
+            TemplateMathTex(r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}", r"~,~ W \in [0, 1]^{\Omega}"),
         ]
 
         comment_texts = [
@@ -128,12 +125,20 @@ class BiseEqQuestionAnimation(man.Scene):
 
 
         self.play(man.FadeIn(texs[0]))
+        self.wait(7)
+
+        self.play(man.TransformMatchingTex(texs[0], texs[1]))
         self.wait(1)
-        for i in range(1, len(texs)):
-            self.play(man.TransformMatchingTex(texs[i-1], texs[i]))
+        self.play(man.TransformMatchingTex(texs[1], texs[2]))
+        self.wait(1)
+        self.play(man.TransformMatchingTex(texs[2], texs[3]))
+        self.wait(1)
+        self.play(man.TransformMatchingTex(texs[3], texs[4]))
+
+
         self.play(man.Create(comment_texts[0].next_to(texs[1], man.DOWN)))
         self.play(man.Create(comment_texts[1].next_to(comment_texts[0], man.DOWN)))
-        self.wait(3)
+        self.wait(12)
 
 
 class BiseEq1DerivationAnimation(man.Scene):
@@ -160,7 +165,8 @@ class BiseEq1DerivationAnimation(man.Scene):
         sq1 = man.Square(side_length=ex1_mob1.horizontal_stretch, color='red').move_to(ex1_mob1.get_center())
         grp1 = man.VGroup(ex1_mob1, sq1)
         selem_mob = ArrayImage(selem, mask=selem, cmap='Blues')
-        dil_ex1_mob1 = Pixel(value=dil_ex1[1, 1], color=man.YELLOW, show_value=True, height=ex1_mob1.horizontal_stretch)
+        dil_ex1_mob1 = ArrayImage(np.array([[dil_ex1[1, 1]]]), show_value=True,)
+        # dil_ex1_mob1 = Pixel(value=dil_ex1[1, 1], color=man.YELLOW, show_value=True, height=ex1_mob1.horizontal_stretch)
 
         ex1_mob2 = ArrayImage(ex1, show_value=True)
         sq2 = man.Square(side_length=ex1_mob2.horizontal_stretch, color='red').move_to(ex1_mob2.get_center())
@@ -168,17 +174,29 @@ class BiseEq1DerivationAnimation(man.Scene):
         W_mob = ArrayImage(W, show_value=True)
 
         texs = [
-            man.Tex(r"As~~"),
-            man.Tex(r"~~, we have"),
-            man.MathTex(r">", r"b", r"\Rightarrow", ),
-            man.MathTex(r"w_{1, 2}", r"> b")
+            man.Tex(r"As~~"),  # 0
+            man.Tex(r"~~, we have"),  # 1
+            man.MathTex(r">", r"b", r"\Rightarrow", ),  # 2
+            man.MathTex(r"w_{1, 2}", r"> b"),  # 3
+            TemplateMathTex("Assumption:", r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r">", r"b", r"\Big)"),  # 4
+            man.MathTex(r"\leq", r"b", r"\Rightarrow", ),  # 5
+            man.MathTex(r"w_{0, 1}", r"+", r"w_{1, 2}", r"+", r"w_{2, 1}", r"+", r"w_{1, 0}" r"\leq b"),  # 6
+            man.MathTex(r"\sum_{i, j \notin S}", r"w_{i,j}", r"\leq b"),  # 7
+            man.MathTex(r"\min_{i, j \in S}", r"w_{i,j}", r"> b"),  # 8
+            man.MathTex(r"\Leftrightarrow"),  # 9
+            TemplateMathTex(r"\forall X", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r">", r"b", r"\Big)"),  # 10
+            TemplateMathTex(r"\forall X", ",", r"\ero{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r">", r"b", r"\Big)"),  # 11
+            man.MathTex(r"\sum_{i, j \in \Omega}{w_{i,j}}", r"-", r"\min_{i, j \in S}", r"w_{i,j}", r"\leq b"),  # 12
+            man.MathTex(r"\sum_{i, j \in S}", r"w_{i,j}", r"> b"),  # 13
+            man.MathTex(r"\Rightarrow"),  # 14
         ]
 
-        dil_mob = DilationOperationMob(grp1, selem_mob, dil_ex1_mob1, show_braces=False, subscripts=[man.MathTex("X"), man.MathTex("S"), None])
+        dil_mob = DilationOperationMob(grp1, selem_mob, dil_ex1_mob1, show_braces=False, subscripts=[TemplateMathTex(r"\mathbbm{1}_{X}"), TemplateMathTex(r"\mathbbm{1}_{S}"), None])
 
-        conv_mob = ConvolutionOperationMob(grp2, W_mob, show_braces=False, subscripts=[man.MathTex("X"), man.MathTex("W"), None])
+        conv_mob = ConvolutionOperationMob(grp2, W_mob, show_braces=False, subscripts=[TemplateMathTex(r"\mathbbm{1}_{X}"), man.MathTex("W"), None])
 
-        play_horizontal_sequence(self, [texs[0], dil_mob, texs[1]], origin=man.ORIGIN + 2 * man.UP + 3*man.LEFT)
+        self.play(man.FadeIn(texs[4].move_to(man.ORIGIN + 3 * man.UP)))
+        play_horizontal_sequence(self, [texs[0], dil_mob, texs[1]], origin=man.ORIGIN + 1 * man.UP + 3*man.LEFT)
         play_horizontal_sequence(self, [conv_mob, texs[2], texs[3]], origin=dil_mob.get_left() + 3*man.DOWN, aligned_edge=man.LEFT)
 
         for (i, j) in [(0, 1), (1, 1), (1, 2), (1, 0)]:
@@ -193,7 +211,40 @@ class BiseEq1DerivationAnimation(man.Scene):
             texs[3] = new_tex
 
         self.play(man.FadeOut(texs[0], dil_mob, texs[1], texs[2], conv_mob))
-        self.play(man.TransformMatchingTex(texs[3], man.MathTex(r"\min_{i, j \in S}", r"w_{i,j}", r"> b").move_to(man.ORIGIN)))
+        self.play(man.TransformMatchingTex(texs[3], texs[8].move_to(man.ORIGIN)))
+
+        self.play(man.FadeOut(texs[8]))
+
+        ex1 = np.array([
+            [1, 0, 1],
+            [0, 0, 0],
+            [1, 0, 1]
+        ])
+        ex1_mob1.update_array(ex1)
+        ex1_mob2.update_array(ex1)
+        dil_ex1_mob1.update_array(np.array([[0]]))
+
+        play_horizontal_sequence(self, [texs[0], dil_mob, texs[1]], origin=man.ORIGIN + 1 * man.UP + 3*man.LEFT)
+        play_horizontal_sequence(self, [conv_mob, texs[5], texs[6]], origin=dil_mob.get_left() + 3*man.DOWN+ 3 * man.LEFT, aligned_edge=man.LEFT)
+
+
+        self.play(man.FadeOut(texs[0], dil_mob, texs[5], conv_mob, texs[1]))
+        self.play(man.TransformMatchingTex(texs[6], texs[7].move_to(man.ORIGIN)))
+
+        self.play(texs[7].animate.move_to(man.ORIGIN + .5 * man.DOWN), man.FadeIn(texs[8].move_to(man.ORIGIN + .5 * man.UP)))
+        grp_dil_ine = man.VGroup(texs[7], texs[8])
+        texs[14].move_to(man.ORIGIN + 1.5 * man.UP)
+        self.play(man.FadeIn(texs[14]), grp_dil_ine.animate.next_to(texs[14], man.RIGHT), man.TransformMatchingTex(texs[4], texs[10].next_to(texs[14], man.LEFT)))
+        self.play(man.TransformMatchingTex(texs[14], texs[9].move_to(texs[14])))
+
+        tex_eq_copy = texs[9].copy().move_to(man.ORIGIN + 1.5*man.DOWN)
+        texs[11].next_to(tex_eq_copy, man.LEFT)
+
+
+        texs[12].move_to(man.ORIGIN + .5*man.DOWN)
+        texs[13].move_to(man.ORIGIN + .5*man.UP)
+        grp_ero_ine = man.VGroup(texs[12], texs[13])
+        self.play(man.FadeIn(tex_eq_copy, texs[11], grp_ero_ine.next_to(tex_eq_copy, man.RIGHT)))
 
         self.wait(3)
 
@@ -312,73 +363,101 @@ class BiseConvBoundsAnimation(man.Scene):
 
         b = (W[selem].min() + W[~selem].sum()) / 2
 
-        def play_conv_and_axis(conv_mob: ConvolutionOperationMob, array_mob: ArrayImage, array_mob_dil: ArrayImage, dil_array_mob: ArrayImage, new_array: np.ndarray, run_time: float = 1) -> man.Dot:
-            new_dil_array = np.array([[dilation(new_array, selem)[1, 1]]])
-
-            animation_update_array_mob(self, [array_mob, dil_array_mob, array_mob_dil], [new_array, new_dil_array, new_array], run_time=run_time)
-
-            val = (new_array * W).sum()
-            color = man.YELLOW if val > b else man.PURPLE
-            point = man.Dot(color=man.WHITE).next_to(axis_mob.get_left(), aligned_edge=man.LEFT).shift(val * man.RIGHT)
-
-            self.play(man.Transform(conv_mob.copy(), point), run_time=run_time)
-            self.play(man.FadeOut(dil_array_mob.copy(), target_position=point.get_center()), point.animate.set_color(color), run_time=run_time)
-            return point
-
         ex1 = lb
 
         dil_array = np.array([[dilation(ex1, selem)[1, 1]]])
 
         array_mob_conv = ArrayImage(ex1, show_value=True, vmin_cmap=0, vmax_cmap=1)
-        array_mob_dil = ArrayImage(ex1, show_value=True, vmin_cmap=0, vmax_cmap=1)
-        dil_array_mob = ArrayImage(dil_array, show_value=True, vmin_cmap=0, vmax_cmap=1)
+        array_mob_dil = ArrayImage(ex1, show_value=False, vmin_cmap=0, vmax_cmap=1)
+        dil_array_mob = ArrayImage(dil_array, show_value=False, vmin_cmap=0, vmax_cmap=1)
         W_mob = ArrayImage(W, cmap=lambda x: [1, 1, 1, 1])
-        selem_mob = ArrayImage(selem.astype(int), cmap='Blues', mask=selem)
-        axis_mob = man.NumberLine(x_range=[0, W.sum(), .5], length=12, include_tip=True)
+        selem_mob = ArrayImage(selem.astype(int), show_value=False, cmap='Blues', mask=selem)
+
+        y_scale = array_mob_dil.horizontal_stretch
+        axis_mob = man.NumberLine(x_range=[0, W.sum(), .5], length=W.sum() * 1.1 / y_scale, include_tip=True)
 
         # Create axis and bias
-        self.play(man.Create(axis_mob.move_to(man.ORIGIN + 2*man.DOWN)))
-        b_mob = man.Dot(color=man.RED).next_to(axis_mob.get_left(), aligned_edge=man.LEFT).shift(b * man.RIGHT)
+        self.play(man.Create(axis_mob.move_to(man.ORIGIN + 3*man.DOWN)))
+        b_mob = man.Dot(color=man.RED).next_to(axis_mob.get_left(), aligned_edge=man.LEFT).shift(b * man.RIGHT / y_scale)
         self.play(man.Create(b_mob), man.Create(man.MathTex("b", color=man.RED).next_to(b_mob, man.UP)))
 
         # Initialize convolution
         conv_mob = ConvolutionOperationMob(
-            array_mob_conv, W_mob, show_braces=False, subscripts=[man.MathTex("X"), man.MathTex("W"), None]
+            array_mob_conv, W_mob, show_braces=False, subscripts=[TemplateMathTex(r"\mathbbm{1}_{X}"), TemplateMathTex("W"), None]
         ).move_to(man.ORIGIN + 2*man.UP + 4*man.LEFT)
 
         # Initalize dilation
         dil_op_mob = DilationOperationMob(
-            array_mob_dil, selem_mob, dil_array_mob, show_braces=False, subscripts=[man.MathTex("X"), man.MathTex("W"), None]
+            array_mob_dil, selem_mob, dil_array_mob, show_braces=False, subscripts=[TemplateMathTex(r"{X}"), TemplateMathTex(r"{S}"), None]
         ).move_to(man.ORIGIN + 2*man.UP + 4*man.RIGHT)
 
-        self.play(man.Create(conv_mob), man.Create(dil_op_mob))
+        sq1 = man.Square(side_length=array_mob_conv.hscale, color=man.RED).move_to(array_mob_conv)
+        sq2 = man.Square(side_length=array_mob_conv.hscale, color=man.RED).move_to(array_mob_dil)
+        self.play(man.FadeIn(conv_mob, dil_op_mob, sq1, sq2))
+
+        def play_conv_and_axis(conv_mob: ConvolutionOperationMob, array_mob: ArrayImage, array_mob_dil: ArrayImage, dil_array_mob: ArrayImage, new_array: np.ndarray, run_time: float = 1) -> man.Dot:
+            new_dil_array = np.array([[dilation(new_array, selem)[1, 1]]])
+
+            animation_update_array_mob(self, [array_mob, dil_array_mob, array_mob_dil], [new_array, new_dil_array, new_array], other_anims=[man.FadeIn(sq1, sq2)], run_time=run_time)
+
+            val = (new_array * W).sum()
+            color = man.YELLOW if val > b else man.PURPLE
+            point = man.Dot(color=man.WHITE).next_to(axis_mob.get_left(), aligned_edge=man.LEFT).shift(val * man.RIGHT / y_scale)
+
+            self.play(man.Transform(conv_mob.copy(), point), run_time=run_time)
+            self.play(man.FadeOut(dil_array_mob.copy(), target_position=point.get_center()), point.animate.set_color(color), run_time=run_time)
+            return point
 
         # Compute first conv point for lower bound
         val = (ex1 * W).sum()
         color = man.YELLOW if val > b else man.PURPLE
-        point = man.Dot(color=man.WHITE).next_to(axis_mob.get_left(), aligned_edge=man.LEFT).shift(val * man.RIGHT)
-        self.play(man.Transform(conv_mob.copy(), point), run_time=1)
-        self.play(man.FadeOut(dil_array_mob.copy(), target_position=point.get_center()), point.animate.set_color(color), run_time=1)
-        self.play(man.Create(man.MathTex("L", height=.3, color=color).next_to(point, man.DOWN)), run_time=.5)
+        point_lb = man.Dot(color=man.WHITE).next_to(axis_mob.get_left(), aligned_edge=man.LEFT).shift(val * man.RIGHT / y_scale)
+        self.play(man.Transform(conv_mob.copy(), point_lb), run_time=1)
+        self.play(man.FadeOut(dil_array_mob.copy(), target_position=point_lb.get_center()), point_lb.animate.set_color(color), run_time=1)
+        self.play(man.Create(man.MathTex("L", height=.3, color=color).next_to(point_lb, man.DOWN)), run_time=.5)
 
         # Compute upper bound
         point_ub = play_conv_and_axis(conv_mob, array_mob_conv, array_mob_dil, dil_array_mob, ub, run_time=.5)
         self.play(man.Create(man.MathTex("U", height=.3, color=man.YELLOW).next_to(point_ub, man.DOWN)), run_time=.5)
 
+        # Convolution max and min
+        point_min = play_conv_and_axis(conv_mob, array_mob_conv, array_mob_dil, dil_array_mob, np.zeros(selem.shape, dtype=int), run_time=.5)
+        self.play(man.Create(man.Tex("min").next_to(point_min, man.DOWN)))
+
+        point_max = play_conv_and_axis(conv_mob, array_mob_conv, array_mob_dil, dil_array_mob, np.ones(selem.shape, dtype=int), run_time=.5)
+        self.play(man.Create(man.Tex("max").next_to(point_max, man.DOWN)))
+
+
         # Sample of example matrices for convolution
         lim_inout = 2**(np.prod(selem.shape) - selem.sum())
 
-        N_examples = 3
+        N_examples = 5
         nb_in = random.sample(range(lim_inout), N_examples)
         nb_out = random.sample(range(lim_inout, 2**np.prod(selem.shape)), N_examples)
 
         nbs = nb_in + nb_out
         random.shuffle(nbs)
 
+        all_arrays = [generate_input(selem, nb).astype(int) for nb in nbs]
+
         # Animate example matrices
-        for nb in nbs:
-            ex1 = generate_input(selem, nb).astype(int)
-            play_conv_and_axis(conv_mob, array_mob_conv, array_mob_dil, dil_array_mob, ex1, run_time=.5)
+        run_time_fn = tanh_run_times(start_value=.5, end_value=.1, fade_start=2)
+        for t, ar in enumerate(all_arrays):
+            play_conv_and_axis(conv_mob, array_mob_conv, array_mob_dil, dil_array_mob, ar, run_time=run_time_fn(t))
+
+        brace_1 = man.BraceBetweenPoints(point_ub, point_max, direction=man.UP, color=man.YELLOW)
+        tex_dil_1 = man.MathTex(r"\in X \oplus S", color=man.YELLOW).next_to(brace_1, man.UP)
+
+        brace_0 = man.BraceBetweenPoints(point_min, point_lb, direction=man.UP, color=man.PURPLE)
+        tex_dil_0 = man.MathTex(r"\notin X \oplus S", color=man.PURPLE).next_to(brace_0, man.UP, aligned_edge=man.RIGHT)
+
+        self.play(man.FadeIn(brace_1, tex_dil_1))
+        self.play(man.FadeIn(brace_0, tex_dil_0))
+
+        red_line = man.Line(start=point_lb, end=point_ub, color=man.RED)
+        self.play(man.Create(red_line, run_time=1))
+
+        self.play(man.Transform(red_line.copy(), TemplateMathTex(r"\forall X ~,~ \mathbbm{1}_{X} \circledast W \notin ]L, U[", color=man.RED)))
 
         self.wait(3)
 
@@ -386,20 +465,20 @@ class BiseConvBoundsAnimation(man.Scene):
 class BiseEq3DerivationAnimation(man.Scene):
     def construct(self):
         texs = [
-            # TemplateTex(r'\ero{X}{S}')
-            TemplateTex(r"U_{erosion} = ", r"\inf_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\conv{",
+            # TemplateMathTex(r'\ero{X}{S}')
+            TemplateMathTex(r"U_{erosion} = ", r"\inf_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\conv{",
             r"\indicator{", r"X", r"}", r"}", r"{", r"W", r"}", r"(i)", r"~\|~", r"i \in", r"\ero{X}{S}", r"\}"),
-            TemplateTex(r"U_{erosion} = ", r"\inf_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\conv{",
+            TemplateMathTex(r"U_{erosion} = ", r"\inf_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\conv{",
             r"\indicator{", r"\bar{X}", r"}", r"}", r"{", r"W", r"}", r"(i)", r"~\|~", r"i \in", r"\ero{\bar{X}}{S}", r"\}"),
-            TemplateTex(r"U_{erosion} = ", r"\inf_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\conv{",
+            TemplateMathTex(r"U_{erosion} = ", r"\inf_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\conv{",
             r"\indicator{", r"\bar{X}", r"}", r"}", r"{", r"W", r"}", r"(i)", r"~\|~", r"i \in", r"\overline{", r"\dil{\bar{X}}{S}", r"}", r"\}"),
-            TemplateTex(r"U_{erosion} = ", r"\inf_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\conv{",
+            TemplateMathTex(r"U_{erosion} = ", r"\inf_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\conv{",
             r"\indicator{", r"\bar{X}", r"}", r"}", r"{", r"W", r"}", r"(i)", r"~\|~", r"i \in", r"\overline{", r"\dil{\bar{X}}{S}", r"}", r"\}"),
-            TemplateTex(r"U_{erosion} = ", r"\inf_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\sum_{i \in \Omega}", r"w_i", r"-", r"\conv{(",
+            TemplateMathTex(r"U_{erosion} = ", r"\inf_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\sum_{i \in \Omega}", r"w_i", r"-", r"\conv{(",
             r"\indicator{", r"{X}", r"}", r")}", r"{", r"W", r"}", r"(i)", r"~\|~", r"i \in", r"\overline{", r"\dil{\bar{X}}{S}", r"}", r"\}"),
-            TemplateTex(r"U_{erosion} = ", r"\sum_{i \in \Omega}", r"w_i", r"-", r"\sup_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\conv{(",
+            TemplateMathTex(r"U_{erosion} = ", r"\sum_{i \in \Omega}", r"w_i", r"-", r"\sup_{", r"X \in \{0, 1\}, i \in \Omega", r"}", r"\{" r"\conv{(",
             r"\indicator{", r"{X}", r"}", r")}", r"{", r"W", r"}", r"(i)", r"~\|~", r"i \in", r"\overline{", r"\dil{\bar{X}}{S}", r"}", r"\}"),
-            TemplateTex(r"U_{erosion} =", r"\sum_{i \in \Omega}", r"w_i", r"-", r"L_{dilation}")
+            TemplateMathTex(r"U_{erosion} =", r"\sum_{i \in \Omega}", r"w_i", r"-", r"L_{dilation}")
         ]
 
         play_transforming_tex(self, texs, origin=man.ORIGIN, run_time=2)
