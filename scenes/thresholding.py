@@ -57,6 +57,8 @@ class ThresholdingAnimation(man.Scene):
             man.MathTex(",", r"\tau_", r"{\ominus}", r"=", f"{tau_ero}", tex_to_color_map={f"{tau_ero}": man.GREEN, r"{\ominus}": man.GREEN}),  # 13
             man.MathTex(r"W", ">", r"\tau_", r"{\ominus}", tex_to_color_map={r"{\ominus}": man.GREEN}),  # 14
             man.Tex(r"$\Leftrightarrow$~", r"$\ominus$~", r"by~", r"$S$", tex_to_color_map={r"$\ominus$": man.GREEN}),  # 15
+            man.MathTex(f"= {b_dila:.2f}"),  # 16
+            man.MathTex(f"= {W.sum() - b_ero:.2f}", color=man.GREEN),  # 17
         ]
 
         selem_mob.next_to(texs[0], man.RIGHT)
@@ -69,9 +71,7 @@ class ThresholdingAnimation(man.Scene):
         texs[5].next_to(texs[4], man.DOWN)
         man.VGroup(texs[3], texs[4], texs[5]).move_to(man.ORIGIN + man.RIGHT)
 
-        self.play(man.FadeIn(texs[0], selem_mob))
-        self.play(man.FadeIn(texs[1], W_mob))
-        self.play(man.Create(texs[2]))
+        self.play(man.FadeIn(texs[0], selem_mob, texs[1], W_mob, texs[2]))
 
         self.play(man.VGroup(texs[0], selem_mob, texs[1], W_mob, texs[2]).animate.shift(5.5*man.LEFT))
 
@@ -85,19 +85,20 @@ class ThresholdingAnimation(man.Scene):
         # self.play(man.Create(texs[5]))
         self.play(man.FadeOut(grp_in, grp_out))
         self.play(texs[5].animate.shift(4*man.UP))
-        self.play(man.Create(texs[6].next_to(texs[5], man.DOWN)))
+        self.play(man.FadeIn(texs[6].next_to(texs[5], man.DOWN)))
 
         W_mob2 = W_mob.copy().shift(5 * man.RIGHT)
 
         self.play(man.FadeIn(W_mob2, texs[8].next_to(W_mob2, man.DOWN)))
-        self.play(man.Create(texs[7].next_to(W_mob2, 2*man.RIGHT)))
+        texs[7].next_to(W_mob2, 2*man.RIGHT)
+        self.play(man.FadeIn(texs[7], texs[16].next_to(texs[7], man.RIGHT)))
 
         texs[9].move_to(texs[8])
         self.play(man.FadeIn(W_thresh.move_to(W_mob2)), man.FadeOut(W_mob2), man.TransformMatchingTex(texs[8], texs[9]))
         tex0 = texs[0].copy()
-        self.play(man.Create(tex0.next_to(W_thresh, man.LEFT)))
+        self.play(man.FadeIn(tex0.next_to(W_thresh, man.LEFT)))
 
-        self.wait(1.5)
+        self.wait(3)
 
         texs[11].move_to(texs[2])
         texs[12].move_to(texs[5])
@@ -110,6 +111,7 @@ class ThresholdingAnimation(man.Scene):
             man.TransformMatchingTex(texs[7], texs[13]),
             man.TransformMatchingTex(texs[9], texs[14]),
             man.TransformMatchingTex(texs[6], texs[15]),
+            man.TransformMatchingTex(texs[16], texs[17].next_to(texs[13], man.RIGHT)),
         )
 
-        self.wait(3)
+        self.wait(10)

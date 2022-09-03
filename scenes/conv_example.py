@@ -16,10 +16,10 @@ class ConvExampleAnimation(man.Scene):
 
         selem = np.ones((9, 9))
 
-        shape = (100, 100)
+        # shape = (100, 100)
         # shape = (20, 20)
 
-        img = cv2.resize(img, shape).astype(float)
+        # img = cv2.resize(img, shape).astype(float)
 
 
         conv1 = convolve2d(img, selem1, mode="same")
@@ -39,21 +39,35 @@ class ConvExampleAnimation(man.Scene):
         # assert False
 
         # img_mob = ArrayImage(img, show_value=False, shape_target=5*man.UP + 5*man.RIGHT,)
-        img_mob = ArrayImage(img, show_value=False, fill_opacity=1, shape_target=3*man.UP + 3*man.RIGHT, cmap='gray')#.move_to(man.ORIGIN + 3 * man.LEFT)
-        conv_mob = ArrayImage(conv_tot, show_value=False, fill_opacity=1, shape_target=3*man.UP + 3*man.RIGHT, cmap='gray')#.move_to(man.ORIGIN + 3 * man.RIGHT)
-        selem_mob = ArrayImage(selem, show_value=False, cmap='Blues', shape_target=.3*man.UP + .3*man.RIGHT)
+        # img_mob = ArrayImage(img, show_value=False, fill_opacity=1, shape_target=3*man.UP + 3*man.RIGHT, cmap='gray')#.move_to(man.ORIGIN + 3 * man.LEFT)
+        # conv_mob = ArrayImage(conv_tot, show_value=False, fill_opacity=1, shape_target=3*man.UP + 3*man.RIGHT, cmap='gray')#.move_to(man.ORIGIN + 3 * man.RIGHT)
+        img_mob = man.ImageMobject(img)
+        img_mob.height = 3
+        conv_mob = man.ImageMobject(conv_tot)
+        conv_mob.height = 3
+        # selem_mob = ArrayImage(selem, show_value=False, cmap='Blues', shape_target=.3*man.UP + .3*man.RIGHT)
+        selem_mob = man.Square(side_length=img_mob.height / 20, color=man.BLUE, fill_opacity=.5)
 
 
-        img_noise_mob = ArrayImage(img_noisy, show_value=False, fill_opacity=1, shape_target=3*man.UP + 3*man.RIGHT, cmap='gray')#.move_to(man.ORIGIN + 3 * man.LEFT)
-        conv_noise_mob = ArrayImage(conv_denoise, show_value=False, fill_opacity=1, shape_target=3*man.UP + 3*man.RIGHT, cmap='gray')#.move_to(man.ORIGIN + 3 * man.RIGHT)
+        # img_noise_mob = ArrayImage(img_noisy, show_value=False, fill_opacity=1, shape_target=3*man.UP + 3*man.RIGHT, cmap='gray')#.move_to(man.ORIGIN + 3 * man.LEFT)
+        # conv_noise_mob = ArrayImage(conv_denoise, show_value=False, fill_opacity=1, shape_target=3*man.UP + 3*man.RIGHT, cmap='gray')#.move_to(man.ORIGIN + 3 * man.RIGHT)
 
-        self.play(man.FadeIn(img_noise_mob))  # 1s
+        img_noise_mob = man.ImageMobject(img_noisy)
+        img_noise_mob.height = 3
+        conv_noise_mob = man.ImageMobject(conv_denoise)
+        conv_noise_mob.height = 3
+
+        self.play(man.FadeIn(img_mob))
         self.play(man.FadeIn(selem_mob.next_to(img_noise_mob, man.LEFT)))  # 2s
-        for j in [5, 10]:
-            for i in range(4, shape[0] - 4, 5):
-                self.play(selem_mob.animate.move_to(img_noise_mob.get_pixel(i, j).get_center()), run_time=.25)
+        for j in [0, 1]:
+            # for i in range(4, shape[0] - 4, 5):
+            for i in range(int(img_mob.height / selem_mob.height)):
+                self.play(selem_mob.animate.move_to(img_noise_mob.get_top() + img_noise_mob.get_left() + selem_mob.height * ((1 / 2 + j) * man.DOWN + (1 / 2 + i) * man.RIGHT)), run_time=.25)
         self.play(man.FadeOut(selem_mob))
         # ~12s
+
+        self.play(man.FadeIn(img_noise_mob), man.FadeOut(img_mob))  # 1s
+        self.wait()
 
         self.play(man.FadeIn(conv_noise_mob))  # 13s
         self.play(img_noise_mob.animate.shift(2 * man.UP + 2 * man.LEFT), conv_noise_mob.animate.shift(2 * man.UP + 2 * man.RIGHT))  # 14s
