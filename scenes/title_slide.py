@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import manim as man
 
 
@@ -20,6 +21,16 @@ class TitleSlideAnimation(man.Scene):
 
         man.VGroup(*texs).move_to(man.ORIGIN)
 
-        self.add(*texs)
+        logo = plt.imread("Logo_OPIS.png")*255
+        # logo[logo[..., -1] == 0] = 255
+        # logo[..., -1] = 1
+        
+        img = man.ImageMobject(logo)
+        img.height = 1.5
+        img.next_to(texs[0], man.UP, aligned_edge=man.RIGHT)
+        # rec = man.Rectangle(color=man.WHITE, height=img.height, width=img.width, fill_opacity=1).move_to(img)
+
+        self.add(*texs, img)
+        self.play(man.FadeIn(img.shift(2*man.RIGHT+.1*man.DOWN)), run_time=.5)
         self.wait(10)
         # self.play(man.FadeOut(*texs))

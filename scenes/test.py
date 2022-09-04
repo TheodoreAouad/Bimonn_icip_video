@@ -1,8 +1,15 @@
 import manim as man
 
 from utils import TemplateMathTex
+import matplotlib.pyplot as plt
 
 
 class TestScene(man.Scene):
     def construct(self):
-        TemplateMathTex(r"\tau_{\ominus} =", r"\frac{\sum_{i, j \in \Omega}w_{i, j} - b}{1 - v_1}"),  # 8
+        logo = plt.imread("Logo_OPIS.png")*255
+        # logo[logo[..., -1] == 0] = 255
+        # logo[..., -1] = 1
+        
+        img = man.ImageMobject(logo)
+        self.play(man.FadeIn(img))
+        self.wait(3)
