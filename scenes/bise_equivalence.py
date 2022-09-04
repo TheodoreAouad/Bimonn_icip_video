@@ -111,16 +111,16 @@ class OnePixelEnoughAnimation(man.Scene):
 class BiseEqQuestionAnimation(man.Scene):
     def construct(self):
         texs = [
-            TemplateMathTex(r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"1", r"\Big)",),
-            TemplateMathTex(r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"b", r"\Big)"),
-            TemplateMathTex(r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}"),
-            TemplateMathTex(r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}"),
-            TemplateMathTex(r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}", r"~,~ W \in [0, 1]^{\Omega}"),
+            TemplateMathTex(r"\forall X \subset \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"1", r"\Big)",),
+            TemplateMathTex(r"\forall X \subset \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"b", r"\Big)"),
+            TemplateMathTex(r"\forall X \subset \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"\indicator{S}", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}"),
+            TemplateMathTex(r"\forall X \subset \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}"),
+            TemplateMathTex(r"\forall X \subset \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r"\geq", r"b", r"\Big)", r"~,~ b \in \mathbb{R}", r"~,~ W \in [0, 1]^{\Omega}"),
         ]
 
         comment_texts = [
-            man.Tex(r"What is the relationship between $W$ and $b$"),
-            man.Tex(r"to ensure this equivalence?")
+            man.Tex(r"What are all the $W$ and $b$"),
+            man.Tex(r"such that this equality holds?")
         ]
 
 
@@ -162,11 +162,11 @@ class BiseEq1DerivationAnimation(man.Scene):
             ["$w_{" + f"{i}{j}" + "}$" for i in range(3)] for j in range(3)
         ])
 
-        ex1_mob1 = ArrayImage(ex1, show_value=True)
+        ex1_mob1 = ArrayImage(ex1, show_value=False)
         sq1 = man.Square(side_length=ex1_mob1.horizontal_stretch, color='red').move_to(ex1_mob1.get_center())
         grp1 = man.VGroup(ex1_mob1, sq1)
-        selem_mob = ArrayImage(selem, mask=selem, cmap='Blues')
-        dil_ex1_mob1 = ArrayImage(np.array([[dil_ex1[1, 1]]]), show_value=True,)
+        selem_mob = ArrayImage(selem, mask=selem, show_value=False, cmap='Blues')
+        dil_ex1_mob1 = ArrayImage(np.array([[dil_ex1[1, 1]]]), show_value=True, vmin_cmap=0, vmax_cmap=1)
         # dil_ex1_mob1 = Pixel(value=dil_ex1[1, 1], color=man.YELLOW, show_value=True, height=ex1_mob1.horizontal_stretch)
 
         ex1_mob2 = ArrayImage(ex1, show_value=True)
@@ -179,7 +179,7 @@ class BiseEq1DerivationAnimation(man.Scene):
             man.Tex(r"~~, we have"),  # 1
             man.MathTex(r">", r"b", r"\Rightarrow", ),  # 2
             man.MathTex(r"w_{1, 2}", r"> b"),  # 3
-            TemplateMathTex("Assumption:", r"\forall X \in \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r">", r"b", r"\Big)"),  # 4
+            TemplateMathTex("Assumption:", r"\forall X \subset \mathbb{Z}^d", ",", r"\dil{X}{S}", r"=", r"\Big(", r"\indicator{X}", r"\circledast", r"W", r">", r"b", r"\Big)"),  # 4
             man.MathTex(r"\leq", r"b", r"\Rightarrow", ),  # 5
             man.MathTex(r"w_{0, 1}", r"+", r"w_{1, 2}", r"+", r"w_{2, 1}", r"+", r"w_{1, 0}" r"\leq b"),  # 6
             man.MathTex(r"\sum_{i, j \notin S}", r"w_{i,j}", r"\leq b"),  # 7
@@ -192,7 +192,7 @@ class BiseEq1DerivationAnimation(man.Scene):
             man.MathTex(r"\Rightarrow"),  # 14
         ]
 
-        dil_mob = DilationOperationMob(grp1, selem_mob, dil_ex1_mob1, show_braces=False, subscripts=[TemplateMathTex(r"\mathbbm{1}_{X}"), TemplateMathTex(r"\mathbbm{1}_{S}"), None])
+        dil_mob = DilationOperationMob(grp1, selem_mob, dil_ex1_mob1, show_braces=False, subscripts=[TemplateMathTex(r"X"), TemplateMathTex(r"S"), None])
 
         conv_mob = ConvolutionOperationMob(grp2, W_mob, show_braces=False, subscripts=[TemplateMathTex(r"\mathbbm{1}_{X}"), man.MathTex("W"), None])
 
@@ -228,11 +228,14 @@ class BiseEq1DerivationAnimation(man.Scene):
             ex1_mob2.update_array(ex1)
             new_tex = man.MathTex(r"w_{" + f"{i}, {j}" + r"}", r"> b").move_to(texs[3].get_center())
 
-            self.play(man.FadeIn(grp1), man.FadeIn(grp2), man.TransformMatchingTex(texs[3], new_tex), run_time=.7)
+            self.play(man.FadeIn(grp1), man.FadeIn(grp2), man.FadeOut(texs[3]), run_time=.35)
+            self.play(man.FadeIn(new_tex), run_time=.7)
+            # self.play(man.FadeIn(grp1), man.FadeIn(grp2), man.TransformMatchingTex(texs[3], new_tex), run_time=.7)
             texs[3] = new_tex
 
         self.play(man.FadeOut(texs[0], dil_mob, texs[1], texs[2], conv_mob))
         self.play(man.TransformMatchingTex(texs[3], texs[8].move_to(man.ORIGIN)))
+        self.wait(1)
 
         self.play(man.FadeOut(texs[8]))
 
@@ -252,7 +255,7 @@ class BiseEq1DerivationAnimation(man.Scene):
         self.play(man.FadeOut(texs[0], dil_mob, texs[5], conv_mob, texs[1]))
         self.play(man.TransformMatchingTex(texs[6], texs[7].move_to(man.ORIGIN)))
 
-        self.wait(2)
+        self.wait(1)
 
         self.play(texs[7].animate.move_to(man.ORIGIN + .5 * man.DOWN), man.FadeIn(texs[8].move_to(man.ORIGIN + .5 * man.UP)))
         grp_dil_ine = man.VGroup(texs[7], texs[8])

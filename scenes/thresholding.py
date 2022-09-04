@@ -26,7 +26,7 @@ class ThresholdingAnimation(man.Scene):
         W_thresh = (W > b_dila).astype(int)
 
         W_mob = ArrayImage(W, show_value=True)
-        W_thresh = ArrayImage(W_thresh, show_value=True)
+        W_thresh = ArrayImage(W_thresh, mask=W_thresh, show_value=False)
         selem_mob = ArrayImage(selem.astype(int), mask=selem, show_value=False, cmap='Blues')
 
         texs = [

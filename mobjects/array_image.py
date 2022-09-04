@@ -145,8 +145,10 @@ class ArrayImage(man.VGroup):
             self.remove(mob)
         self.build_all_pixels(center=center)
 
-    def update_array(self, new_array: np.ndarray):
+    def update_array(self, new_array: np.ndarray, new_mask: np.ndarray = None):
         self.array = new_array
+        if new_mask is not None:
+            self.mask = new_mask
         self.reset_all_pixels()
         return self
 

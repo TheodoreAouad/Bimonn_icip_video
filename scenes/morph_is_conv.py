@@ -54,7 +54,7 @@ class ConvMorphoAnimation(man.Scene):
         selem_mob1 = ArrayImage(selem, cmap='Blues', show_value=True)
         
         conv_array_mob = ArrayImage(conv_array, show_value=True)
-        conv_thresh_mob = ArrayImage((conv_array > 0).astype(int), show_value=True)
+        conv_thresh_mob = ArrayImage((conv_array > 0).astype(int), mask=(conv_array > 0).astype(int), show_value=False)
         dil_array_mob1 = ArrayImage(dil_array, mask=dil_array, show_value=False)
         dil_array_mob2 = ArrayImage(dil_array, show_value=True)
 
